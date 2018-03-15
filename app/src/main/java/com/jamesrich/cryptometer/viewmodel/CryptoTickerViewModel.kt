@@ -11,12 +11,12 @@ import com.jamesrich.cryptometer.model.Cryptocurrency
  */
 class CryptoTickerViewModel : ViewModel() {
     private var repository = ProjectRepository()
-    private var cryptocurrencies:MutableLiveData<List<Cryptocurrency>> = repository.data
+    private var cryptocurrencies:MutableLiveData<List<Cryptocurrency>> = repository.cryptocurrencies
 
 
     fun getCryptocurrencies():LiveData<List<Cryptocurrency>>{
         if (cryptocurrencies.value == null){
-            repository.getCryptocurrenciesLiveData()
+            repository.fetchCryptocurrencies()
         }
         return cryptocurrencies
     }

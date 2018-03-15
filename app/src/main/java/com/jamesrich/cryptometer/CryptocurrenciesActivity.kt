@@ -8,17 +8,13 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jamesrich.cryptometer.api.ProjectRepository
 import com.jamesrich.cryptometer.model.Cryptocurrency
 import com.jamesrich.cryptometer.viewmodel.CryptoTickerViewModel
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_cryptocurrencies.*
 import kotlinx.android.synthetic.main.ticker_item.view.*
 
 
 class CryptocurrenciesActivity : AppCompatActivity() {
-    val compositeDisposable = CompositeDisposable()
-    private var cryptos: ArrayList<Cryptocurrency> = ArrayList<Cryptocurrency>()
     private lateinit var cryptoAdapter: CryptoAdapter
 
     private lateinit var cryptoTickerViewModel: CryptoTickerViewModel
@@ -26,7 +22,7 @@ class CryptocurrenciesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cryptocurrencies)
-        cryptoAdapter = CryptoAdapter(cryptos)
+        cryptoAdapter = CryptoAdapter(cryptocurrencies = ArrayList<Cryptocurrency>())
         ticker_list.adapter = cryptoAdapter
 
         cryptoTickerViewModel = ViewModelProviders.of(this).get(CryptoTickerViewModel::class.java)
@@ -37,11 +33,6 @@ class CryptocurrenciesActivity : AppCompatActivity() {
             cryptoAdapter.notifyDataSetChanged()
         })
 
-    }
-
-    override fun onDestroy() {
-        compositeDisposable.dispose()
-        super.onDestroy()
     }
 
     private inner class CryptoAdapter internal constructor(var cryptocurrencies: ArrayList<Cryptocurrency>) : RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
