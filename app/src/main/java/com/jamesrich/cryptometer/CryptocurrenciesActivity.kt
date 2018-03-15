@@ -1,66 +1,42 @@
 package com.jamesrich.cryptometer
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.jamesrich.cryptometer.api.ApiClient
-import com.jamesrich.cryptometer.api.ApiInterface
+import com.jamesrich.cryptometer.api.ProjectRepository
 import com.jamesrich.cryptometer.model.Cryptocurrency
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.jamesrich.cryptometer.viewmodel.CryptoTickerViewModel
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableObserver
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_cryptocurrencies.*
 import kotlinx.android.synthetic.main.ticker_item.view.*
 
 
 class CryptocurrenciesActivity : AppCompatActivity() {
     val compositeDisposable = CompositeDisposable()
-    private  var cryptos: ArrayList<Cryptocurrency> = ArrayList<Cryptocurrency>()
+    private var cryptos: ArrayList<Cryptocurrency> = ArrayList<Cryptocurrency>()
     private lateinit var cryptoAdapter: CryptoAdapter
+
+    private lateinit var cryptoTickerViewModel: CryptoTickerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cryptocurrencies)
+        cryptoAdapter = CryptoAdapter(cryptos)
+        ticker_list.adapter = cryptoAdapter
 
-        showCryptocurrencies()
+        cryptoTickerViewModel = ViewModelProviders.of(this).get(CryptoTickerViewModel::class.java)
 
-
-
-    }
-
-    fun showCryptocurrencies(){
-        val cryptocurrenciesResponse = getCryptocurrencies().subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-        val disposableObserver = cryptocurrenciesResponse.subscribeWith(object : DisposableObserver<List<Cryptocurrency>>(){
-            override fun onComplete() {
-            }
-
-            override fun onNext(cryptocurrencies: List<Cryptocurrency>) {
-                val listSize = cryptocurrencies.size
-                Log.e("ITEMS **** ", listSize.toString())
-                cryptos.clear()
-                cryptos.addAll(cryptocurrencies)
-                cryptoAdapter  = CryptoAdapter(cryptos)
-                ticker_list.adapter = cryptoAdapter
-            }
-
-            override fun onError(e: Throwable) {
-                Log.e("ERROR *** ", e.message)
-            }
+        cryptoTickerViewModel.getCryptocurrencies().observe(this, Observer { newCryptos ->
+            cryptoAdapter.cryptocurrencies.clear()
+            newCryptos?.forEach { crypto -> cryptoAdapter.cryptocurrencies.add(crypto) }
+            cryptoAdapter.notifyDataSetChanged()
         })
 
-        compositeDisposable.addAll(disposableObserver)
-    }
-
-    fun getCryptocurrencies(): Observable<List<Cryptocurrency>>{
-        val retrofit = ApiClient.getClient()
-        val apiInterface = retrofit.create(ApiInterface::class.java)
-        return apiInterface.getCryptocurrencies("0")
     }
 
     override fun onDestroy() {
@@ -68,7 +44,8 @@ class CryptocurrenciesActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private inner class CryptoAdapter internal constructor(private val cryptocurrencies: List<Cryptocurrency>): RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
+    private inner class CryptoAdapter internal constructor(var cryptocurrencies: ArrayList<Cryptocurrency>) : RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
+
 
         override fun onCreateViewHolder(
                 parent: ViewGroup, viewType: Int): ViewHolder {
