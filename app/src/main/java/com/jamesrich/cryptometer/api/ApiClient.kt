@@ -35,21 +35,3 @@ interface ApiInterface {
 
 }
 
-class ProjectRepository {
-    val retrofit = ApiClient.getClient()
-    val apiInterface = retrofit.create(ApiInterface::class.java)
-    var cryptocurrencies = MutableLiveData<List<Cryptocurrency>>()
-
-    fun fetchCryptocurrencies(): LiveData<List<Cryptocurrency>> {
-        apiInterface.getCryptocurrenciesCall("0").enqueue(object : Callback<List<Cryptocurrency>> {
-            override fun onFailure(call: Call<List<Cryptocurrency>>?, t: Throwable?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onResponse(call: Call<List<Cryptocurrency>>?, response: Response<List<Cryptocurrency>>?) {
-                cryptocurrencies.value = response?.body()
-            }
-        })
-        return cryptocurrencies
-    }
-}
