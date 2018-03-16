@@ -13,5 +13,5 @@ import org.koin.dsl.module.applicationContext
 // Koin module
 val cryptoModule : Module = applicationContext {
     viewModel { CryptoTickerViewModel(get()) } // get() will resolve Repository instance
-    bean { CryptoRepo() as Repo } bind CryptoRepo::class
+    bean { CryptoRepo() }
 }
