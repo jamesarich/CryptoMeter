@@ -1,7 +1,6 @@
 package com.jamesrich.cryptometer
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
@@ -12,12 +11,12 @@ import com.jamesrich.cryptometer.model.Cryptocurrency
 import com.jamesrich.cryptometer.viewmodel.CryptoTickerViewModel
 import kotlinx.android.synthetic.main.activity_cryptocurrencies.*
 import kotlinx.android.synthetic.main.ticker_item.view.*
+import org.koin.android.architecture.ext.getViewModel
+import org.koin.android.architecture.ext.viewModel
 
 
 class CryptocurrenciesActivity : AppCompatActivity() {
     private lateinit var cryptoAdapter: CryptoAdapter
-
-    private lateinit var cryptoTickerViewModel: CryptoTickerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +24,7 @@ class CryptocurrenciesActivity : AppCompatActivity() {
         cryptoAdapter = CryptoAdapter(cryptocurrencies = ArrayList<Cryptocurrency>())
         ticker_list.adapter = cryptoAdapter
 
-        cryptoTickerViewModel = ViewModelProviders.of(this).get(CryptoTickerViewModel::class.java)
-
-        cryptoTickerViewModel.getCryptocurrencies().observe(this, Observer { newCryptos ->
+        getViewModel<CryptoTickerViewModel>().getCryptocurrencies().observe(this, Observer { newCryptos ->
             cryptoAdapter.cryptocurrencies.clear()
             newCryptos?.forEach { crypto -> cryptoAdapter.cryptocurrencies.add(crypto) }
             cryptoAdapter.notifyDataSetChanged()
