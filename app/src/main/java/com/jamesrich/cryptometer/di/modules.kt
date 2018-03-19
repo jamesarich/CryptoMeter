@@ -1,5 +1,7 @@
 package com.jamesrich.cryptometer.di
 
+import com.jamesrich.cryptometer.api.ApiClient
+import com.jamesrich.cryptometer.api.ApiInterface
 import com.jamesrich.cryptometer.model.CryptoRepo
 import com.jamesrich.cryptometer.viewmodel.CryptoTickerViewModel
 import org.koin.android.architecture.ext.viewModel
@@ -12,5 +14,6 @@ import org.koin.dsl.module.applicationContext
 // Koin module
 val cryptoModule: Module = applicationContext {
     viewModel { CryptoTickerViewModel(get()) } // get() will resolve Repository instance
-    bean { CryptoRepo() }
+    bean { CryptoRepo(get()) }
+    bean { ApiClient.getService() }
 }
